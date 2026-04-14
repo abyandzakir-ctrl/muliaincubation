@@ -1,0 +1,1081 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: sans-serif; }
+  :root {
+    --gold: #cd9f29;
+    --gold-dark: #a07a1a;
+    --gold-light: #f0cc7a;
+    --gold-bg: #fdf6e3;
+    --white: #ffffff;
+    --gray-text: #3a3a3a;
+    --gray-muted: #666;
+    --gray-light: #f5f5f5;
+    --teal: #0d6e56;
+    --sidebar-w: 280px;
+  }
+  #app { display: flex; height: 100vh; min-height: 600px; background: #f7f0dc; font-family: 'Segoe UI', sans-serif; }
+  #sidebar {
+    width: var(--sidebar-w);
+    background: #cd9f29;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  #sidebar-header {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.12);
+  }
+  #sidebar-header .logo-text { font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.7); text-transform: uppercase; margin-bottom: 4px; }
+  #sidebar-header h2 { font-size: 16px; font-weight: 600; color: #fff; line-height: 1.3; }
+  #sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 0; }
+  #sidebar-nav::-webkit-scrollbar { width: 4px; }
+  #sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+  #sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 2px; }
+  .nav-section { margin-bottom: 4px; }
+  .nav-section-title {
+    padding: 8px 16px 4px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    font-weight: 600;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    cursor: pointer;
+    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    line-height: 1.4;
+    transition: background 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.15); color: #fff; }
+  .nav-item.active { background: rgba(255,255,255,0.2); color: #fff; border-left-color: #fff; font-weight: 600; }
+  .nav-item .nav-num { font-size: 11px; opacity: 0.6; min-width: 18px; }
+  .nav-item .nav-label { flex: 1; }
+  .nav-item .nav-check { font-size: 11px; opacity: 0.7; }
+  .nav-sub { padding-left: 28px; }
+  .nav-sub .nav-item { font-size: 12px; padding: 7px 16px 7px 0; }
+  #progress-bar-wrap { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.25); background: rgba(0,0,0,0.08); }
+  #progress-bar-wrap .prog-label { font-size: 11px; color: rgba(255,255,255,0.75); margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .prog-track { background: rgba(255,255,255,0.25); border-radius: 4px; height: 6px; }
+  .prog-fill { background: #fff; border-radius: 4px; height: 6px; transition: width 0.4s; }
+
+  #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  #topbar {
+    background: #fff;
+    border-bottom: 1px solid #e8d8a0;
+    padding: 12px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  #topbar .breadcrumb { font-size: 12px; color: #888; }
+  #topbar .breadcrumb span { color: var(--gold-dark); font-weight: 600; }
+  #topbar .nav-btns { display: flex; gap: 8px; }
+  .btn-nav {
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1.5px solid var(--gold);
+    background: transparent;
+    color: var(--gold-dark);
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .btn-nav:hover { background: var(--gold); color: #fff; }
+  .btn-nav.primary { background: var(--gold); color: #fff; }
+  .btn-nav.primary:hover { background: var(--gold-dark); border-color: var(--gold-dark); }
+  #content { flex: 1; overflow-y: auto; padding: 32px 36px; background: #fdf6e3; }
+  #content::-webkit-scrollbar { width: 6px; }
+  #content::-webkit-scrollbar-thumb { background: #e8d8a0; border-radius: 3px; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .page-hero {
+    background: linear-gradient(135deg, var(--gold) 0%, #a07a1a 100%);
+    border-radius: 12px;
+    padding: 36px 40px;
+    margin-bottom: 28px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-hero::after {
+    content: '';
+    position: absolute;
+    right: -20px; top: -20px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+  }
+  .page-hero .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .page-hero h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
+  .page-hero p { font-size: 14px; opacity: 0.88; line-height: 1.6; max-width: 580px; }
+
+  .section-card {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e8d8a0;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .section-card-header {
+    background: #fdf0cc;
+    border-bottom: 1px solid #e8d8a0;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-card-header .icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .section-card-header h3 { font-size: 15px; font-weight: 600; color: #5a3e00; }
+  .section-card-body { padding: 18px 20px; }
+  .section-card-body p { font-size: 13.5px; color: var(--gray-text); line-height: 1.75; margin-bottom: 12px; }
+  .section-card-body p:last-child { margin-bottom: 0; }
+
+  .objectives-list { list-style: none; padding: 0; }
+  .objectives-list li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0e8c8;
+    font-size: 13.5px;
+    color: var(--gray-text);
+    line-height: 1.65;
+  }
+  .objectives-list li:last-child { border-bottom: none; }
+  .objectives-list li .obj-num {
+    min-width: 26px; height: 26px;
+    background: var(--gold);
+    color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .stage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+  .stage-card {
+    border-radius: 8px;
+    padding: 14px 16px;
+    border: 1px solid;
+  }
+  .stage-card.discover { background: #e8f5e9; border-color: #a5d6a7; }
+  .stage-card.define { background: #e3f2fd; border-color: #90caf9; }
+  .stage-card.develop { background: #fff8e1; border-color: #ffe082; }
+  .stage-card.deliver { background: #f3e5f5; border-color: #ce93d8; }
+  .stage-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .stage-card.discover h4 { color: #2e7d32; }
+  .stage-card.define h4 { color: #1565c0; }
+  .stage-card.develop h4 { color: #e65100; }
+  .stage-card.deliver h4 { color: #6a1b9a; }
+  .stage-card p { font-size: 12.5px; line-height: 1.6; color: #444; }
+
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 8px 0;
+    font-size: 13px;
+    color: var(--gray-text);
+    line-height: 1.6;
+    border-bottom: 1px solid #f5edd5;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li .chk {
+    width: 18px; height: 18px;
+    border: 2px solid var(--gold);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .redflag-list { list-style: none; padding: 0; }
+  .redflag-list li {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 8px 0;
+    font-size: 13px;
+    color: #7a1c1c;
+    background: #fff5f5;
+    margin-bottom: 6px;
+    border-radius: 6px;
+    padding: 10px 12px;
+    border-left: 3px solid #e53935;
+  }
+
+  .tag-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag {
+    background: #fdf0cc;
+    border: 1px solid #e8d8a0;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    color: #6b4c00;
+    font-weight: 500;
+  }
+
+  .method-card {
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    border: 1px solid #e8d8a0;
+    background: #fffdf5;
+  }
+  .method-card h4 { font-size: 14px; font-weight: 700; color: #5a3e00; margin-bottom: 6px; }
+  .method-card p { font-size: 13px; color: #555; line-height: 1.65; }
+
+  .score-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .score-table th { background: var(--gold); color: #fff; padding: 10px 12px; text-align: left; }
+  .score-table td { padding: 9px 12px; border-bottom: 1px solid #f0e8c8; color: var(--gray-text); }
+  .score-table tr:last-child td { border-bottom: none; }
+  .score-table tr:nth-child(even) td { background: #fdf8ed; }
+  .grade { border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+  .grade-c { background: #ffcdd2; color: #c62828; }
+  .grade-b { background: #fff9c4; color: #f57f17; }
+  .grade-a { background: #dcedc8; color: #33691e; }
+  .grade-aa { background: #b3e5fc; color: #01579b; }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--gold); color: #fff;
+    border-radius: 6px; padding: 4px 12px;
+    font-size: 12px; font-weight: 700;
+    margin-bottom: 14px;
+  }
+
+  .info-box {
+    background: #e8f4fd;
+    border-left: 4px solid #1976d2;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #0d47a1;
+    margin: 12px 0;
+    line-height: 1.6;
+  }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  @media (max-width: 680px) {
+    #sidebar { width: 220px; }
+    #content { padding: 20px 16px; }
+    .stage-grid, .two-col { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div id="app">
+  <div id="sidebar">
+    <div id="sidebar-header">
+      <div class="logo-text">Mulia Incubation</div>
+      <h2>Program Inkubasi Bisnis</h2>
+    </div>
+    <div id="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Pendahuluan</div>
+        <div class="nav-item active" onclick="goPage(0)" data-page="0">
+          <span class="nav-num">00</span>
+          <span class="nav-label">Selamat Datang</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Bab I – Program Inkubasi</div>
+        <div class="nav-item" onclick="goPage(1)" data-page="1">
+          <span class="nav-num">1.1</span>
+          <span class="nav-label">Definisi Program</span>
+        </div>
+        <div class="nav-item" onclick="goPage(2)" data-page="2">
+          <span class="nav-num">1.2</span>
+          <span class="nav-label">Tujuan Program</span>
+        </div>
+        <div class="nav-item" onclick="goPage(3)" data-page="3">
+          <span class="nav-num">1.3</span>
+          <span class="nav-label">Tahapan Inkubasi</span>
+        </div>
+        <div class="nav-item" onclick="goPage(4)" data-page="4">
+          <span class="nav-num">1.4</span>
+          <span class="nav-label">Kerangka Inkubasi</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Bab II – Desain Inkubasi</div>
+        <div class="nav-item" onclick="goPage(5)" data-page="5">
+          <span class="nav-num">2.1</span>
+          <span class="nav-label">Timeline Program</span>
+        </div>
+        <div class="nav-item" onclick="goPage(6)" data-page="6">
+          <span class="nav-num">2.2</span>
+          <span class="nav-label">Business Readiness</span>
+        </div>
+        <div class="nav-item" onclick="goPage(7)" data-page="7">
+          <span class="nav-num">2.3</span>
+          <span class="nav-label">Metodologi Inkubasi</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Bab III – Modul Asesmen</div>
+        <div class="nav-item" onclick="goPage(8)" data-page="8">
+          <span class="nav-num">3.1</span>
+          <span class="nav-label">Modul 1 – Produk & VP</span>
+        </div>
+        <div class="nav-item" onclick="goPage(9)" data-page="9">
+          <span class="nav-num">3.2</span>
+          <span class="nav-label">Modul 2 – Pasar & Traksi</span>
+        </div>
+        <div class="nav-item" onclick="goPage(10)" data-page="10">
+          <span class="nav-num">3.3</span>
+          <span class="nav-label">Modul 3 – Monetisasi</span>
+        </div>
+        <div class="nav-item" onclick="goPage(11)" data-page="11">
+          <span class="nav-num">3.4</span>
+          <span class="nav-label">Modul 4 – Tim & Tata Kelola</span>
+        </div>
+        <div class="nav-item" onclick="goPage(12)" data-page="12">
+          <span class="nav-num">3.5</span>
+          <span class="nav-label">Modul 5 – Keuangan</span>
+        </div>
+        <div class="nav-item" onclick="goPage(13)" data-page="13">
+          <span class="nav-num">3.6</span>
+          <span class="nav-label">Modul 6 – Legal & Compliance</span>
+        </div>
+        <div class="nav-item" onclick="goPage(14)" data-page="14">
+          <span class="nav-num">3.7</span>
+          <span class="nav-label">Modul 7 – Sistem & Operasi</span>
+        </div>
+        <div class="nav-item" onclick="goPage(15)" data-page="15">
+          <span class="nav-num">3.8</span>
+          <span class="nav-label">Modul 8 – Risiko & Keberlanjutan</span>
+        </div>
+        <div class="nav-item" onclick="goPage(16)" data-page="16">
+          <span class="nav-num">3.9</span>
+          <span class="nav-label">Sistem Penilaian & Klasifikasi</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Bab IV – Pembelajaran</div>
+        <div class="nav-item" onclick="goPage(17)" data-page="17">
+          <span class="nav-num">4.1</span>
+          <span class="nav-label">Modul Learning</span>
+        </div>
+        <div class="nav-item" onclick="goPage(18)" data-page="18">
+          <span class="nav-num">4.2</span>
+          <span class="nav-label">Modul Assignment</span>
+        </div>
+      </div>
+    </div>
+    <div id="progress-bar-wrap">
+      <div class="prog-label">
+        <span>Progres Pembelajaran</span>
+        <span id="prog-pct">0%</span>
+      </div>
+      <div class="prog-track">
+        <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="main">
+    <div id="topbar">
+      <div class="breadcrumb" id="breadcrumb">Pendahuluan / <span>Selamat Datang</span></div>
+      <div class="nav-btns">
+        <button class="btn-nav" onclick="prevPage()">← Sebelumnya</button>
+        <button class="btn-nav primary" onclick="nextPage()">Berikutnya →</button>
+      </div>
+    </div>
+
+    <div id="content">
+
+      <!-- PAGE 0: Welcome -->
+      <div class="page active" id="page-0">
+        <div class="page-hero">
+          <div class="badge">Mulia Incubation Academy</div>
+          <h1>Program Inkubasi Bisnis</h1>
+          <p>Selamat datang di modul pembelajaran digital Mulia Incubation Academy. Program ini dirancang untuk membantu Anda memahami kerangka inkubasi bisnis secara menyeluruh — dari definisi, metodologi, hingga modul asesmen.</p>
+        </div>
+        <div class="two-col">
+          <div class="section-card">
+            <div class="section-card-header">
+              <div class="icon">📚</div>
+              <h3>Isi Modul</h3>
+            </div>
+            <div class="section-card-body">
+              <ul class="objectives-list">
+                <li><div class="obj-num">I</div><span>Program Inkubasi: definisi, tujuan, dan kerangka</span></li>
+                <li><div class="obj-num">II</div><span>Desain Inkubasi: timeline, metodologi, dan readiness</span></li>
+                <li><div class="obj-num">III</div><span>8 Modul Asesmen bisnis secara lengkap</span></li>
+                <li><div class="obj-num">IV</div><span>Modul Learning dan Assignment</span></li>
+              </ul>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-card-header">
+              <div class="icon">🎯</div>
+              <h3>Tujuan Pembelajaran</h3>
+            </div>
+            <div class="section-card-body">
+              <p>Setelah menyelesaikan modul ini, peserta diharapkan mampu memahami seluruh kerangka kerja inkubasi bisnis, mengenali indikator kesiapan bisnis pada tiap tahap, serta menerapkan metodologi asesmen secara sistematis.</p>
+              <div class="info-box">Navigasi antar halaman menggunakan tombol <strong>Berikutnya / Sebelumnya</strong> atau klik menu di panel kiri.</div>
+            </div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="icon">🏆</div>
+            <h3>4 Tahap Inkubasi</h3>
+          </div>
+          <div class="section-card-body">
+            <div class="stage-grid">
+              <div class="stage-card discover"><h4>Discover</h4><p>Eksplorasi industri, identifikasi masalah pelanggan, dan penemuan peluang bisnis yang potensial.</p></div>
+              <div class="stage-card define"><h4>Define</h4><p>Pematangan konsep bisnis, perumusan value proposition, dan segmentasi pasar yang jelas.</p></div>
+              <div class="stage-card develop"><h4>Develop</h4><p>Membangun fondasi bisnis: operasional, keuangan, tim, dan validasi produk di pasar.</p></div>
+              <div class="stage-card deliver"><h4>Deliver</h4><p>Optimalisasi sistem bisnis, kesiapan ekspansi, dan akses pendanaan (bankable).</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 1: Definisi -->
+      <div class="page" id="page-1">
+        <div class="page-hero"><div class="badge">Bab I — 1.1</div><h1>Definisi Program Inkubasi</h1><p>Memahami hakikat dan tujuan dasar program inkubasi bisnis sebagai proses pendampingan terstruktur.</p></div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">📖</div><h3>Apa itu Inkubasi Bisnis?</h3></div>
+          <div class="section-card-body">
+            <p>Inkubasi bisnis adalah proses pendampingan terstruktur yang dirancang untuk membantu entitas usaha mengembangkan ide bisnis menjadi usaha yang layak secara komersial, berkelanjutan, dan siap memasuki pasar.</p>
+            <p>Proses ini bertujuan meningkatkan kecepatan dan tingkat keberhasilan pengembangan bisnis, khususnya di tahap awal di mana banyak usaha masih menghadapi ketidakpastian.</p>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">💡</div><h3>Bentuk Dukungan dalam Inkubasi</h3></div>
+          <div class="section-card-body">
+            <div class="tag-grid">
+              <div class="tag">Pendampingan (Mentoring)</div>
+              <div class="tag">Pelatihan Kapasitas Bisnis</div>
+              <div class="tag">Validasi Pasar</div>
+              <div class="tag">Penguatan Model Bisnis</div>
+              <div class="tag">Uji Asumsi Bisnis</div>
+              <div class="tag">Pemahaman Kebutuhan Pelanggan</div>
+            </div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">🏗️</div><h3>Cakupan Inkubasi</h3></div>
+          <div class="section-card-body">
+            <p>Inkubasi bisnis tidak hanya berfokus pada pengembangan produk atau ide semata. Ia juga mencakup:</p>
+            <ul class="objectives-list">
+              <li><div class="obj-num">1</div><span>Penguatan aspek manajerial dan tata kelola perusahaan</span></li>
+              <li><div class="obj-num">2</div><span>Pembangunan sistem operasional yang berkelanjutan</span></li>
+              <li><div class="obj-num">3</div><span>Pembentukan fondasi organisasi yang kuat</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 2: Tujuan -->
+      <div class="page" id="page-2">
+        <div class="page-hero"><div class="badge">Bab I — 1.2</div><h1>Tujuan Program Inkubasi</h1><p>Enam tujuan utama yang menjadi landasan penyelenggaraan program inkubasi bisnis.</p></div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">🎯</div><h3>6 Tujuan Utama Program</h3></div>
+          <div class="section-card-body">
+            <ul class="objectives-list">
+              <li><div class="obj-num">1</div><span><strong>Mengurangi risiko kegagalan</strong> usaha pada tahap awal melalui pengujian ide bisnis secara sistematis.</span></li>
+              <li><div class="obj-num">2</div><span><strong>Mempercepat proses pembelajaran</strong> dan pengembangan bisnis melalui pelatihan, mentoring, dan pengalaman praktis.</span></li>
+              <li><div class="obj-num">3</div><span><strong>Mengubah ide bisnis</strong> menjadi model usaha yang lebih matang, terstruktur, dan memiliki proposisi nilai yang jelas.</span></li>
+              <li><div class="obj-num">4</div><span><strong>Membangun pola pikir kewirausahaan</strong> yang adaptif, inovatif, dan berorientasi pada pemecahan masalah.</span></li>
+              <li><div class="obj-num">5</div><span><strong>Mempersiapkan pondasi operasional</strong> yang terstandarisasi, efisien, dan profesional.</span></li>
+              <li><div class="obj-num">6</div><span><strong>Meningkatkan kesiapan bisnis</strong> untuk mengakses pembiayaan (bankable) dari lembaga keuangan dan investor.</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="info-box">Melalui proses inkubasi yang terstruktur, bisnis diharapkan tidak hanya bertahan di tahap awal, tetapi berkembang menjadi organisasi dengan sistem operasional efisien, model bisnis yang jelas, dan tata kelola yang profesional.</div>
+      </div>
+
+      <!-- PAGE 3: Staging -->
+      <div class="page" id="page-3">
+        <div class="page-hero"><div class="badge">Bab I — 1.3</div><h1>Tahapan Inkubasi</h1><p>Program inkubasi menggunakan pendekatan Double Diamond Framework dengan 4 tahap pengembangan bertahap.</p></div>
+        <div class="stage-grid">
+          <div class="stage-card discover">
+            <h4>Discover — Eksplorasi</h4>
+            <p>Peserta mengidentifikasi industri potensial, memahami permasalahan pelanggan, dan menemukan solusi yang dapat dikembangkan.</p>
+          </div>
+          <div class="stage-card define">
+            <h4>Define — Pematangan</h4>
+            <p>Fokus pada perumusan model bisnis yang lebih jelas: segmen pasar, value proposition, dan pendekatan pengembangan produk/layanan.</p>
+          </div>
+          <div class="stage-card develop">
+            <h4>Develop — Pembangunan</h4>
+            <p>Membangun fondasi bisnis lebih kuat: operasional, organisasi, sistem keuangan, dan pengujian produk di pasar untuk validasi nyata.</p>
+          </div>
+          <div class="stage-card deliver">
+            <h4>Deliver — Optimalisasi</h4>
+            <p>Bisnis telah memiliki model usaha relatif matang. Fokus pada optimalisasi operasional dan kesiapan ekspansi atau akses pendanaan.</p>
+          </div>
+        </div>
+        <div class="section-card" style="margin-top:16px">
+          <div class="section-card-header"><div class="icon">🚀</div><h3>Tahap Depart — Keputusan Akhir</h3></div>
+          <div class="section-card-body">
+            <p>Pada tahap akhir, Headquarter melakukan evaluasi menyeluruh dan menetapkan salah satu dari tiga keputusan strategis:</p>
+            <div class="stage-grid">
+              <div style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;padding:12px 16px"><strong style="color:#2e7d32">Scale</strong><p style="font-size:12.5px;color:#444;margin-top:4px">Bisnis siap berkembang dan melakukan ekspansi usaha.</p></div>
+              <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:12px 16px"><strong style="color:#e65100">Hold</strong><p style="font-size:12.5px;color:#444;margin-top:4px">Bisnis masih perlu penguatan sebelum lanjut ke tahap berikutnya.</p></div>
+            </div>
+            <div style="background:#ffebee;border:1px solid #ef9a9a;border-radius:8px;padding:12px 16px;margin-top:12px"><strong style="color:#c62828">Exit</strong><p style="font-size:12.5px;color:#444;margin-top:4px">Bisnis belum memenuhi kriteria kelayakan untuk dilanjutkan dalam program inkubasi.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 4: Framework -->
+      <div class="page" id="page-4">
+        <div class="page-hero"><div class="badge">Bab I — 1.4</div><h1>Kerangka Inkubasi Bisnis</h1><p>8 aspek utama dalam Business Incubation Framework yang menjadi fondasi pengembangan bisnis peserta.</p></div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">🗂️</div><h3>8 Aspek Utama Pengembangan Bisnis</h3></div>
+          <div class="section-card-body">
+            <ul class="objectives-list">
+              <li><div class="obj-num">1</div><span><strong>Product & Value Proposition</strong> — Kejelasan produk/layanan dan nilai utama bagi pelanggan.</span></li>
+              <li><div class="obj-num">2</div><span><strong>Market & Traction</strong> — Pemahaman pasar dan bukti penerimaan produk (penjualan, pertumbuhan).</span></li>
+              <li><div class="obj-num">3</div><span><strong>Business Monetization</strong> — Model bisnis, strategi harga, dan kemampuan menghasilkan profit berkelanjutan.</span></li>
+              <li><div class="obj-num">4</div><span><strong>Team & Governance</strong> — Kapasitas tim, kejelasan peran, dan struktur tata kelola.</span></li>
+              <li><div class="obj-num">5</div><span><strong>Financial Readiness</strong> — Kesiapan pengelolaan keuangan secara transparan dan terstruktur.</span></li>
+              <li><div class="obj-num">6</div><span><strong>Legal & Compliance</strong> — Kelengkapan legalitas usaha dan kepatuhan regulasi.</span></li>
+              <li><div class="obj-num">7</div><span><strong>System & Operation</strong> — Sistem operasional terstandarisasi, efisien, konsisten, dan scalable.</span></li>
+              <li><div class="obj-num">8</div><span><strong>Risk & Sustainability</strong> — Kemampuan identifikasi dan pengelolaan risiko jangka panjang.</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">🏢</div><h3>Peran Headquarter (HQ)</h3></div>
+          <div class="section-card-body">
+            <p>HQ bertindak sebagai pusat pengelola program inkubasi yang bertanggung jawab dalam mengarahkan, memfasilitasi, dan mendukung perkembangan bisnis peserta. HQ mencakup: Marketing & Branding, Talent, Finance & Tax, Information Technology, Legal, Research & Incubation, dan Quality Assurance.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 5: Timeline -->
+      <div class="page" id="page-5">
+        <div class="page-hero"><div class="badge">Bab II — 2.1</div><h1>Timeline Program Inkubasi</h1><p>Program berlangsung selama 4 semester (24 bulan) dengan tahapan yang terstruktur dan evaluasi berkala.</p></div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">📅</div><h3>Alur 4 Semester (24 Bulan)</h3></div>
+          <div class="section-card-body">
+            <div style="overflow-x:auto">
+              <table class="score-table">
+                <thead><tr><th>Semester</th><th>Bulan 1</th><th>Bulan 2-3</th><th>Bulan 4-5</th><th>Bulan 6</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Semester 1</strong></td><td><span style="background:#fef9c3;color:#854d0e;padding:3px 8px;border-radius:4px;font-size:12px">Assessment</span></td><td><span style="background:#dcfce7;color:#14532d;padding:3px 8px;border-radius:4px;font-size:12px">Discover</span></td><td><span style="background:#dbeafe;color:#1e3a5f;padding:3px 8px;border-radius:4px;font-size:12px">Define</span></td><td>—</td></tr>
+                  <tr><td><strong>Semester 2</strong></td><td colspan="4" style="text-align:center"><span style="background:#fef3c7;color:#92400e;padding:3px 12px;border-radius:4px;font-size:12px">Develop (berlanjut)</span></td></tr>
+                  <tr><td><strong>Semester 3</strong></td><td colspan="4" style="text-align:center"><span style="background:#fef3c7;color:#92400e;padding:3px 12px;border-radius:4px;font-size:12px">Develop (berlanjut)</span></td></tr>
+                  <tr><td><strong>Semester 4</strong></td><td colspan="3"><span style="background:#f3e8ff;color:#581c87;padding:3px 8px;border-radius:4px;font-size:12px">Deliver</span></td><td><span style="background:#ffd700;color:#4a3000;padding:3px 8px;border-radius:4px;font-size:12px">Depart</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">📊</div><h3>Evaluasi Berkala</h3></div>
+          <div class="section-card-body">
+            <p>Evaluasi perkembangan peserta dilakukan pada akhir setiap semester dengan tiga tujuan utama:</p>
+            <ul class="objectives-list">
+              <li><div class="obj-num">1</div><span>Memantau perkembangan bisnis peserta inkubasi</span></li>
+              <li><div class="obj-num">2</div><span>Mengidentifikasi tantangan yang dihadapi selama proses pengembangan usaha</span></li>
+              <li><div class="obj-num">3</div><span>Menjadi dasar penyusunan strategi pendampingan pada tahap berikutnya</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 6: Business Readiness -->
+      <div class="page" id="page-6">
+        <div class="page-hero"><div class="badge">Bab II — 2.2</div><h1>Business Readiness Indicator</h1><p>Indikator kesiapan bisnis yang menjadi tolok ukur evaluasi pada setiap tahap inkubasi.</p></div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">📈</div><h3>Contoh Indikator: Product & Value Proposition</h3></div>
+          <div class="section-card-body">
+            <div class="stage-grid">
+              <div class="stage-card discover"><h4>Discover</h4><p>Growth Industri >5% YoY; Product memiliki Value Proposition awal yang jelas.</p></div>
+              <div class="stage-card define"><h4>Define</h4><p>Fitur utama produk telah diuji (prototype/MVP); umpan balik menunjukkan relevansi.</p></div>
+              <div class="stage-card develop"><h4>Develop</h4><p>Gross Margin >30%-40%; Product Performance >70%.</p></div>
+              <div class="stage-card deliver"><h4>Deliver</h4><p>Diferensiasi kuat (brand, lisensi, distribusi eksklusif); kualitas produk konsisten.</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">💰</div><h3>Contoh Indikator: Financial Readiness</h3></div>
+          <div class="section-card-body">
+            <div class="stage-grid">
+              <div class="stage-card discover"><h4>Discover</h4><p>Proyeksi pendapatan dan biaya tersedia; asumsi dasar terdokumentasi.</p></div>
+              <div class="stage-card define"><h4>Define</h4><p>Laporan keuangan tersedia; DER ≤4x; memiliki Unit Cost Analysis.</p></div>
+              <div class="stage-card develop"><h4>Develop</h4><p>DSCR ≥1,2; DER &lt;2x; cashflow operasional positif.</p></div>
+              <div class="stage-card deliver"><h4>Deliver</h4><p>Berhasil Audit WTP; kapasitas pembiayaan meningkat >20%.</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="info-box">Business Readiness Indicator menilai bukan hanya aktivitas yang dilakukan, tetapi <strong>hasil yang telah dicapai</strong> dan target yang terpenuhi pada setiap fase pengembangan usaha.</div>
+      </div>
+
+      <!-- PAGE 7: Metodologi -->
+      <div class="page" id="page-7">
+        <div class="page-hero"><div class="badge">Bab II — 2.3</div><h1>Metodologi Inkubasi</h1><p>Tiga pendekatan terpadu: Assessment, Learning, dan Assignment membentuk siklus pengembangan bisnis yang berkelanjutan.</p></div>
+        <div class="method-card">
+          <h4>1. Assessment — Evaluasi Kesiapan Bisnis</h4>
+          <p>Proses evaluasi awal dan berkala untuk mengukur tingkat kesiapan bisnis peserta menggunakan kerangka Business Readiness. Dilakukan pada awal program dan di setiap akhir semester.</p>
+        </div>
+        <div class="method-card">
+          <h4>2. Learning — Penguatan Kapasitas</h4>
+          <p>Program penguatan kapasitas yang mencakup Vocational Training, Mentoring, Coaching, dan Counselling. Peserta memperoleh pengetahuan konseptual sekaligus keterampilan praktis yang langsung diterapkan.</p>
+        </div>
+        <div class="method-card">
+          <h4>3. Assignment — Implementasi Nyata</h4>
+          <p>Tahap implementasi di mana peserta diberikan tugas pengembangan bisnis yang spesifik berdasarkan hasil asesmen. Fokus pada area yang masih memerlukan penguatan.</p>
+        </div>
+        <div class="section-card" style="margin-top:8px">
+          <div class="section-card-header"><div class="icon">🔄</div><h3>Siklus Pengembangan Bisnis</h3></div>
+          <div class="section-card-body">
+            <p>Integrasi ketiganya menciptakan siklus yang berkelanjutan: Assessment memberikan gambaran kondisi bisnis → Learning memperkuat kapasitas → Assignment memastikan implementasi nyata → kembali ke Assessment untuk evaluasi progres.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 8: Modul 1 -->
+      <div class="page" id="page-8">
+        <div class="page-hero"><div class="badge">Bab III — Modul 1</div><h1>Product & Value Proposition</h1><p>Mengidentifikasi apakah produk/jasa memiliki masalah yang jelas, keunikan nilai, dan relevan dengan kebutuhan pasar.</p></div>
+        <div class="module-badge">Maksimal Poin: 12 | C: 0-3 | B: 4-6 | A: 7-9 | AA: 10-12</div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">✅</div><h3>Checklist Asesmen</h3></div>
+          <div class="section-card-body">
+            <p style="font-size:12px;color:#888;margin-bottom:8px">Problem & Customer Definition</p>
+            <ul class="checklist">
+              <li><div class="chk"></div>Masalah utama yang ingin diselesaikan telah terdefinisi dengan jelas</li>
+              <li><div class="chk"></div>Target customer segment telah diidentifikasi</li>
+              <li><div class="chk"></div>Customer pain point telah dipahami melalui observasi/wawancara</li>
+              <li><div class="chk"></div>Terdapat bukti bahwa masalah tersebut cukup penting bagi pelanggan</li>
+            </ul>
+            <p style="font-size:12px;color:#888;margin:12px 0 8px">Product / Solution</p>
+            <ul class="checklist">
+              <li><div class="chk"></div>Value proposition product terdefinisi</li>
+              <li><div class="chk"></div>Solusi yang ditawarkan relevan dengan masalah yang diidentifikasi</li>
+              <li><div class="chk"></div>Produk/jasa sudah memiliki bentuk awal (prototype/MVP)</li>
+              <li><div class="chk"></div>Produk memiliki Unique Selling Proposition (USP)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="section-card">
+            <div class="section-card-header"><div class="icon">📄</div><h3>Dokumen yang Diperlukan</h3></div>
+            <div class="section-card-body">
+              <ul class="checklist">
+                <li><div class="chk"></div>Deskripsi / konsep produk</li>
+                <li><div class="chk"></div>Customer persona</li>
+                <li><div class="chk"></div>Hasil wawancara / riset pelanggan</li>
+                <li><div class="chk"></div>Prototype / MVP description</li>
+                <li><div class="chk"></div>Value Proposition Canvas</li>
+              </ul>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-card-header"><div class="icon">🚩</div><h3>Red Flag</h3></div>
+            <div class="section-card-body">
+              <ul class="redflag-list">
+                <li>Produk dibuat tanpa memahami masalah pelanggan</li>
+                <li>Target pasar terlalu luas / tidak jelas</li>
+                <li>Value proposition tidak berbeda dengan kompetitor</li>
+                <li>Produk tidak pernah diuji ke pengguna</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 9: Modul 2 -->
+      <div class="page" id="page-9">
+        <div class="page-hero"><div class="badge">Bab III — Modul 2</div><h1>Market & Traction</h1><p>Menilai pemahaman pasar dan indikasi penerimaan pasar (traction) terhadap produk/layanan bisnis.</p></div>
+        <div class="module-badge">Maksimal Poin: 11 | C: 0-3 | B: 4-6 | A: 7-9 | AA: 10-11</div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">✅</div><h3>Checklist Asesmen</h3></div>
+          <div class="section-card-body">
+            <p style="font-size:12px;color:#888;margin-bottom:8px">Market Understanding</p>
+            <ul class="checklist">
+              <li><div class="chk"></div>Pasar terdefinisi dengan baik</li>
+              <li><div class="chk"></div>Target segmen dari pasar telah ditentukan</li>
+              <li><div class="chk"></div>Memiliki Marketing Plan</li>
+              <li><div class="chk"></div>Lanskap kompetitor telah diidentifikasi</li>
+            </ul>
+            <p style="font-size:12px;color:#888;margin:12px 0 8px">Traction</p>
+            <ul class="checklist">
+              <li><div class="chk"></div>Sudah ada pelanggan berbayar</li>
+              <li><div class="chk"></div>Customer Satisfaction >80% atau 4/5</li>
+              <li><div class="chk"></div>Pertumbuhan omset >5% per tahun</li>
+              <li><div class="chk"></div>Customer retention diukur dan dikelola</li>
+            </ul>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">🚩</div><h3>Red Flag</h3></div>
+          <div class="section-card-body">
+            <ul class="redflag-list">
+              <li>Tidak ada pemahaman tentang pasar</li>
+              <li>Menganggap pasar sangat besar tanpa data</li>
+              <li>Tidak mengetahui kompetitor</li>
+              <li>Tidak ada traction sama sekali</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 10: Modul 3 -->
+      <div class="page" id="page-10">
+        <div class="page-hero"><div class="badge">Bab III — Modul 3</div><h1>Business Monetization</h1><p>Menilai apakah model bisnis memiliki sumber pendapatan yang jelas dan berpotensi berkelanjutan.</p></div>
+        <div class="module-badge">Maksimal Poin: 11 | C: 0-3 | B: 4-6 | A: 7-9 | AA: 10-11</div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">✅</div><h3>Checklist Asesmen</h3></div>
+          <div class="section-card-body">
+            <p style="font-size:12px;color:#888;margin-bottom:8px">Revenue Model</p>
+            <ul class="checklist">
+              <li><div class="chk"></div>Memiliki Business Model Canvas</li>
+              <li><div class="chk"></div>Struktur biaya dan estimasi margin diketahui</li>
+              <li><div class="chk"></div>Memiliki Feasibility Study</li>
+              <li><div class="chk"></div>Model pendapatan siap dikembangkan untuk ekspansi</li>
+            </ul>
+            <p style="font-size:12px;color:#888;margin:12px 0 8px">Unit Economics</p>
+            <ul class="checklist">
+              <li><div class="chk"></div>Cost of goods sold dan margin per produk diketahui</li>
+              <li><div class="chk"></div>Unit Economics menghasilkan margin positif 30% - 70%</li>
+              <li><div class="chk"></div>Break-even point diperkirakan dan mulai tercapai (>30%)</li>
+              <li><div class="chk"></div>BEP tercapai 100% dan cashflow operasional positif</li>
+            </ul>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">🚩</div><h3>Red Flag</h3></div>
+          <div class="section-card-body">
+            <ul class="redflag-list">
+              <li>Tidak jelas bagaimana bisnis menghasilkan uang</li>
+              <li>Harga tidak berbasis biaya atau pasar</li>
+              <li>Margin sangat kecil / negatif</li>
+              <li>Model bisnis sulit berkembang</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 11: Modul 4 -->
+      <div class="page" id="page-11">
+        <div class="page-hero"><div class="badge">Bab III — Modul 4</div><h1>Team & Governance</h1><p>Menilai kapasitas tim dan struktur tata kelola yang memadai untuk menjalankan bisnis.</p></div>
+        <div class="module-badge">Maksimal Poin: 11 | C: 0-3 | B: 4-6 | A: 7-9 | AA: 10-11</div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">✅</div><h3>Checklist Asesmen</h3></div>
+          <div class="section-card-body">
+            <ul class="checklist">
+              <li><div class="chk"></div>Struktur organisasi telah ditetapkan dan disosialisasikan</li>
+              <li><div class="chk"></div>Setiap struktur memiliki job description yang jelas</li>
+              <li><div class="chk"></div>Memiliki OKR dan Business Plan tahun berjalan</li>
+              <li><div class="chk"></div>Memiliki Renstra minimal untuk periode 3 tahunan</li>
+              <li><div class="chk"></div>Terdapat koordinasi manajemen secara periodik</li>
+              <li><div class="chk"></div>Adanya sistem remunerasi dan reward & punishment</li>
+              <li><div class="chk"></div>OKR tercapai >60%</li>
+              <li><div class="chk"></div>Produktivitas kerja >70%</li>
+            </ul>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">🚩</div><h3>Red Flag</h3></div>
+          <div class="section-card-body">
+            <ul class="redflag-list">
+              <li>Direktur tidak aktif dalam operasional bisnis</li>
+              <li>Tidak ada pembagian peran yang jelas dalam tim</li>
+              <li>Perusahaan sangat bergantung pada satu orang</li>
+              <li>Tidak ada struktur organisasi atau koordinasi tim</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 12: Modul 5 -->
+      <div class="page" id="page-12">
+        <div class="page-hero"><div class="badge">Bab III — Modul 5</div><h1>Financial Readiness</h1><p>Menilai kesiapan finansial bisnis untuk beroperasi, tumbuh, dan mengakses pembiayaan.</p></div>
+        <div class="module-badge">Maksimal Poin: 9 | C: 0-2 | B: 3-4 | A: 5-6 | AA: 7-9</div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">✅</div><h3>Checklist Asesmen</h3></div>
+          <div class="section-card-body">
+            <p style="font-size:12px;color:#888;margin-bottom:8px">Financial Recording</p>
+            <ul class="checklist">
+              <li><div class="chk"></div>Pencatatan keuangan rutin dilakukan</li>
+              <li><div class="chk"></div>Laporan keuangan ada dan terdokumentasi rapi</li>
+              <li><div class="chk"></div>Laporan laba rugi tersedia</li>
+            </ul>
+            <p style="font-size:12px;color:#888;margin:12px 0 8px">Financial Sustainability</p>
+            <ul class="checklist">
+              <li><div class="chk"></div>Berhasil Audit WTP</li>
+              <li><div class="chk"></div>Cash In Cash Out (CICO) positif</li>
+              <li><div class="chk"></div>Rasio keuangan terjaga (DER, DSCR, dll)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">🚩</div><h3>Red Flag</h3></div>
+          <div class="section-card-body">
+            <ul class="redflag-list">
+              <li>Tidak ada pencatatan keuangan</li>
+              <li>Keuangan pribadi dan bisnis bercampur</li>
+              <li>Tidak mengetahui profit / loss</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 13: Modul 6 -->
+      <div class="page" id="page-13">
+        <div class="page-hero"><div class="badge">Bab III — Modul 6</div><h1>Legal & Compliance</h1><p>Menilai kelengkapan legalitas usaha dan pemenuhan kewajiban hukum dasar operasional bisnis.</p></div>
+        <div class="module-badge">Maksimal Poin: 13 | C: 0-3 | B: 4-6 | A: 7-9 | AA: 10-13</div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">✅</div><h3>Checklist Asesmen</h3></div>
+          <div class="section-card-body">
+            <ul class="checklist">
+              <li><div class="chk"></div>Perusahaan memiliki badan hukum (PT/CV/Koperasi/dll)</li>
+              <li><div class="chk"></div>Akta pendirian perusahaan tersedia</li>
+              <li><div class="chk"></div>Struktur kepemilikan dan peran pemegang saham jelas</li>
+              <li><div class="chk"></div>Legalitas dan rekam jejak kredit yang bersih</li>
+              <li><div class="chk"></div>Memiliki Company Executive Summary</li>
+              <li><div class="chk"></div>Perusahaan memiliki NIB (Nomor Induk Berusaha)</li>
+              <li><div class="chk"></div>KBLI sesuai dengan kegiatan usaha</li>
+              <li><div class="chk"></div>Memiliki izin usaha yang relevan dengan industri</li>
+              <li><div class="chk"></div>Tidak ada sengketa aktif</li>
+              <li><div class="chk"></div>Perusahaan memiliki NPWP badan usaha</li>
+              <li><div class="chk"></div>Pencatatan pajak / pelaporan pajak rutin dilakukan</li>
+            </ul>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">🚩</div><h3>Red Flag</h3></div>
+          <div class="section-card-body">
+            <ul class="redflag-list">
+              <li>Belum memiliki badan hukum</li>
+              <li>Struktur kepemilikan tidak jelas</li>
+              <li>Usaha berjalan tanpa izin usaha</li>
+              <li>Tidak ada perjanjian antar founder</li>
+              <li>Tidak memiliki NPWP atau tidak memahami kewajiban pajak</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 14: Modul 7 -->
+      <div class="page" id="page-14">
+        <div class="page-hero"><div class="badge">Bab III — Modul 7</div><h1>System & Operation</h1><p>Menilai kesiapan sistem operasional untuk menjalankan bisnis secara konsisten dan scalable.</p></div>
+        <div class="module-badge">Maksimal Poin: 9 | C: 0-2 | B: 3-4 | A: 5-6 | AA: 7-9</div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">✅</div><h3>Checklist Asesmen</h3></div>
+          <div class="section-card-body">
+            <ul class="checklist">
+              <li><div class="chk"></div>Proses operasional telah didefinisikan</li>
+              <li><div class="chk"></div>Ada standar kualitas produk</li>
+              <li><div class="chk"></div>Adanya SOP tertulis</li>
+              <li><div class="chk"></div>Memiliki System Monitoring Operasional</li>
+              <li><div class="chk"></div>Data historis >12 bulan tersedia</li>
+              <li><div class="chk"></div>Memiliki 6 sistem utama bisnis (Keuangan, SDM, Operasional, Pemasaran, IT, Layanan Pelanggan)</li>
+              <li><div class="chk"></div>Integrasi data dan dashboard OKR tersedia</li>
+              <li><div class="chk"></div>Sudah menggunakan aplikasi digital untuk operasional kerja</li>
+              <li><div class="chk"></div>Mulai mengadopsi AI dalam aktivasi pekerjaan</li>
+            </ul>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">🚩</div><h3>Red Flag</h3></div>
+          <div class="section-card-body">
+            <ul class="redflag-list">
+              <li>Operasional bergantung pada improvisasi</li>
+              <li>Tidak ada SOP</li>
+              <li>Produksi tidak konsisten</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 15: Modul 8 -->
+      <div class="page" id="page-15">
+        <div class="page-hero"><div class="badge">Bab III — Modul 8</div><h1>Risk & Sustainability</h1><p>Menilai kesiapan bisnis dalam mengelola risiko dan memastikan keberlanjutan usaha jangka panjang.</p></div>
+        <div class="module-badge">Maksimal Poin: 7 | C: 0-1 | B: 2-4 | A: 5-6 | AA: 7</div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">✅</div><h3>Checklist Asesmen</h3></div>
+          <div class="section-card-body">
+            <ul class="checklist">
+              <li><div class="chk"></div>Risiko utama bisnis telah diidentifikasi</li>
+              <li><div class="chk"></div>SWOT organisasi telah diidentifikasi</li>
+              <li><div class="chk"></div>Tidak tergantung pada 1 Suplier / Pelanggan</li>
+              <li><div class="chk"></div>Cadangan kas >3 bulan biaya operasional</li>
+              <li><div class="chk"></div>Cadangan kas >6 bulan tanpa pembiayaan tambahan</li>
+              <li><div class="chk"></div>Memiliki system & data security</li>
+              <li><div class="chk"></div>Memiliki strategi mitigasi risiko</li>
+            </ul>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">🚩</div><h3>Red Flag</h3></div>
+          <div class="section-card-body">
+            <ul class="redflag-list">
+              <li>Risiko utama tidak disadari</li>
+              <li>Ketergantungan pada satu pelanggan</li>
+              <li>Tidak memahami regulasi industri</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 16: Scoring -->
+      <div class="page" id="page-16">
+        <div class="page-hero"><div class="badge">Bab III — 3.9</div><h1>Sistem Penilaian & Klasifikasi</h1><p>Metode scoring berbasis checklist dan metode Majority Module untuk menentukan tahap inkubasi perusahaan.</p></div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">📊</div><h3>Tabel Skor Maksimal per Modul</h3></div>
+          <div class="section-card-body">
+            <table class="score-table">
+              <thead><tr><th>No</th><th>Modul</th><th>Maks</th><th><span class="grade grade-c">C</span></th><th><span class="grade grade-b">B</span></th><th><span class="grade grade-a">A</span></th><th><span class="grade grade-aa">AA</span></th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Product & Value Proposition</td><td>12</td><td>0-3</td><td>4-6</td><td>7-9</td><td>10-12</td></tr>
+                <tr><td>2</td><td>Market & Traction</td><td>11</td><td>0-3</td><td>4-6</td><td>7-9</td><td>10-11</td></tr>
+                <tr><td>3</td><td>Business Monetization</td><td>11</td><td>0-3</td><td>4-6</td><td>7-9</td><td>10-11</td></tr>
+                <tr><td>4</td><td>Team & Governance</td><td>11</td><td>0-3</td><td>4-6</td><td>7-9</td><td>10-11</td></tr>
+                <tr><td>5</td><td>Financial Readiness</td><td>9</td><td>0-2</td><td>3-4</td><td>5-6</td><td>7-9</td></tr>
+                <tr><td>6</td><td>Legal & Compliance</td><td>13</td><td>0-3</td><td>4-6</td><td>7-9</td><td>10-13</td></tr>
+                <tr><td>7</td><td>System & Operation</td><td>9</td><td>0-2</td><td>3-4</td><td>5-6</td><td>7-9</td></tr>
+                <tr><td>8</td><td>Risk & Sustainability</td><td>7</td><td>0-1</td><td>2-4</td><td>5-6</td><td>7</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">🧮</div><h3>Metode Majority Module</h3></div>
+          <div class="section-card-body">
+            <p>Tahap inkubasi perusahaan ditentukan berdasarkan <strong>tahap yang paling banyak muncul</strong> dari hasil penilaian seluruh 8 modul asesmen.</p>
+            <div class="info-box">Pemetaan Grade: <strong>C = Discover</strong> | <strong>B = Define</strong> | <strong>A = Develop</strong> | <strong>AA = Deliver</strong></div>
+            <p style="margin-top:10px">Contoh: jika 5 dari 8 modul menghasilkan grade B, maka perusahaan dikategorikan pada tahap inkubasi <strong>Define</strong>.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 17: Learning -->
+      <div class="page" id="page-17">
+        <div class="page-hero"><div class="badge">Bab IV — 4.1</div><h1>Modul Learning</h1><p>Empat bentuk intervensi pembelajaran yang dirancang untuk meningkatkan kompetensi dan kapabilitas bisnis peserta inkubasi.</p></div>
+        <div class="method-card">
+          <h4>1. Vocational Training</h4>
+          <p>Pelatihan teknis operasional yang disesuaikan dengan kebutuhan sektor usaha peserta. Mencakup pengembangan produk, pengelolaan produksi, strategi pemasaran, manajemen keuangan, dan pemanfaatan teknologi.</p>
+        </div>
+        <div class="method-card">
+          <h4>2. Mentoring</h4>
+          <p>Pendampingan oleh praktisi atau mentor berpengalaman yang memberikan perspektif strategis, transfer pengalaman, dan arahan dalam pengembangan bisnis melalui sesi diskusi dan konsultasi berkala.</p>
+        </div>
+        <div class="method-card">
+          <h4>3. Coaching</h4>
+          <p>Pendampingan intensif yang berfokus pada pengembangan kemampuan manajerial, kepemimpinan, dan pengambilan keputusan bisnis melalui pendekatan terstruktur dan berorientasi pada pencapaian target.</p>
+        </div>
+        <div class="method-card">
+          <h4>4. Counselling</h4>
+          <p>Penguatan aspek psikologis dan mindset kewirausahaan. Membantu peserta mengembangkan pola pikir resilien, adaptif, dan solutif dalam menghadapi tekanan dan ketidakpastian bisnis.</p>
+        </div>
+        <div class="info-box">Kurikulum Learning disesuaikan dengan tahap inkubasi peserta (Discover, Define, Develop, Deliver) — setiap tahap memiliki fokus penguatan dan mekanisme yang berbeda.</div>
+      </div>
+
+      <!-- PAGE 18: Assignment -->
+      <div class="page" id="page-18">
+        <div class="page-hero"><div class="badge">Bab IV — 4.2</div><h1>Modul Assignment</h1><p>Implementasi nyata dari hasil asesmen dan pembelajaran — penugasan spesifik untuk menutup gap pengembangan bisnis.</p></div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">📋</div><h3>Mekanisme Pelaksanaan Assignment</h3></div>
+          <div class="section-card-body">
+            <ul class="objectives-list">
+              <li><div class="obj-num">1</div><span><strong>Identifikasi Gap</strong> — HQ mengidentifikasi modul yang masih perlu penguatan berdasarkan hasil asesmen.</span></li>
+              <li><div class="obj-num">2</div><span><strong>Perumusan Assignment</strong> — Penugasan dirancang spesifik untuk memperbaiki aspek bisnis yang belum matang.</span></li>
+              <li><div class="obj-num">3</div><span><strong>Pelaksanaan</strong> — Peserta menjalankan penugasan sesuai panduan yang diberikan HQ.</span></li>
+              <li><div class="obj-num">4</div><span><strong>Monitoring</strong> — HQ melakukan check-in berkala dan memberikan feedback selama proses pelaksanaan.</span></li>
+              <li><div class="obj-num">5</div><span><strong>Evaluasi</strong> — Hasil penugasan dievaluasi untuk menilai peningkatan kapasitas bisnis.</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header"><div class="icon">💼</div><h3>Contoh Aktivitas Assignment</h3></div>
+          <div class="section-card-body">
+            <div class="tag-grid">
+              <div class="tag">Penyempurnaan model bisnis</div>
+              <div class="tag">Penguatan strategi pemasaran</div>
+              <div class="tag">Pengembangan produk</div>
+              <div class="tag">Perbaikan sistem operasional</div>
+              <div class="tag">Penyusunan sistem keuangan</div>
+              <div class="tag">Penguatan tata kelola usaha</div>
+            </div>
+          </div>
+        </div>
+        <div class="info-box">Assignment bukan penugasan umum — ia dirancang secara spesifik berdasarkan modul atau area bisnis yang memiliki tingkat kesiapan lebih rendah, sehingga intervensi lebih tepat sasaran.</div>
+        <div style="background: var(--gold); border-radius: 10px; padding: 24px; margin-top: 16px; text-align: center; color: #fff;">
+          <div style="font-size:22px;margin-bottom:8px">Selamat!</div>
+          <div style="font-size:14px;opacity:0.9">Anda telah menyelesaikan seluruh modul pembelajaran</div>
+          <div style="font-size:13px;opacity:0.75;margin-top:6px">Mulia Incubation Academy — Program Inkubasi Bisnis</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const TOTAL = 19;
+let cur = 0;
+const visited = new Set([0]);
+
+const breadcrumbs = [
+  ['Pendahuluan','Selamat Datang'],
+  ['Bab I','Definisi Program'],
+  ['Bab I','Tujuan Program'],
+  ['Bab I','Tahapan Inkubasi'],
+  ['Bab I','Kerangka Inkubasi'],
+  ['Bab II','Timeline Program'],
+  ['Bab II','Business Readiness'],
+  ['Bab II','Metodologi Inkubasi'],
+  ['Bab III','Modul 1 – Produk & VP'],
+  ['Bab III','Modul 2 – Pasar & Traksi'],
+  ['Bab III','Modul 3 – Monetisasi'],
+  ['Bab III','Modul 4 – Tim & Tata Kelola'],
+  ['Bab III','Modul 5 – Keuangan'],
+  ['Bab III','Modul 6 – Legal & Compliance'],
+  ['Bab III','Modul 7 – Sistem & Operasi'],
+  ['Bab III','Modul 8 – Risiko & Keberlanjutan'],
+  ['Bab III','Sistem Penilaian & Klasifikasi'],
+  ['Bab IV','Modul Learning'],
+  ['Bab IV','Modul Assignment'],
+];
+
+function goPage(n) {
+  document.getElementById('page-'+cur).classList.remove('active');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  cur = n;
+  visited.add(n);
+  document.getElementById('page-'+cur).classList.add('active');
+  document.querySelector('[data-page="'+cur+'"]').classList.add('active');
+  const bc = breadcrumbs[cur];
+  document.getElementById('breadcrumb').innerHTML = bc[0]+' / <span>'+bc[1]+'</span>';
+  const pct = Math.round((visited.size/TOTAL)*100);
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-pct').textContent = pct+'%';
+  document.getElementById('content').scrollTop = 0;
+}
+
+function nextPage() { if(cur < TOTAL-1) goPage(cur+1); }
+function prevPage() { if(cur > 0) goPage(cur-1); }
+</script>
